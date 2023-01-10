@@ -7,4 +7,6 @@ fn main() {
     let test = parser.parse();
     
     test.print();
+    test.print();
+    test.print();
     }

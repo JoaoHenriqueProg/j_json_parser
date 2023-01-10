@@ -10,7 +10,7 @@ pub enum JsonType {
     Number(f32),
     String(String),
     Array(Vec<JsonType>),
-    Object(HashMap<String, JsonType>),
+    Object(Vec<(String, JsonType)>),
     Null,
 }
 
@@ -31,13 +31,13 @@ impl JsonType {
         match to_spit {
             JsonType::Object(val) => {
                 println!("{}", '{');
-                for element in val.iter() {
+                for element in val {
                     for _ in 0..(indent + 1) * 2 {
                         print!(" ");
                     }
 
                     print!("\"{}\": ", element.0);
-                    self.spit(element.1, indent + 1);
+                    self.spit(&element.1, indent + 1);
                 }
                     for _ in 0..indent * 2 {
                         print!(" ");
@@ -282,8 +282,8 @@ impl Parser {
         return to_return;
     }
 
-    fn parse_object(&mut self) -> HashMap<String, JsonType> {
-        let mut to_return: HashMap<String, JsonType> = HashMap::new();
+    fn parse_object(&mut self) -> Vec<(String, JsonType)> {
+        let mut to_return: Vec<(String, JsonType)> = Vec::new();
 
         self.expect_char('{');
 
@@ -314,7 +314,7 @@ impl Parser {
                     // new_key.clone(),
                     // result.clone().to_string()
                     // );
-                    to_return.insert(new_key, JsonType::Bool(result));
+                    to_return.push((new_key, JsonType::Bool(result)));
                 }
 
                 '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '.' => {
@@ -324,7 +324,7 @@ impl Parser {
                     //     new_key.clone(),
                     //     result.clone().to_string()
                     // );
-                    to_return.insert(new_key, JsonType::Number(result));
+                    to_return.push((new_key, JsonType::Number(result)));
                 }
 
                 '"' => {
@@ -334,7 +334,7 @@ impl Parser {
                     //     new_key.clone(),
                     //     result.clone().to_string()
                     // );
-                    to_return.insert(new_key, JsonType::String(result));
+                    to_return.push((new_key, JsonType::String(result)));
                 }
 
                 '[' => {
@@ -342,7 +342,7 @@ impl Parser {
 
                     // println!("Added key {} with value array", new_key.clone());
 
-                    to_return.insert(new_key, JsonType::Array(result));
+                    to_return.push((new_key, JsonType::Array(result)));
                 }
 
                 'n' => {
@@ -354,7 +354,7 @@ impl Parser {
                     if slice == "null" {
                         // println!("Added key {} with value null", new_key.clone(),);
 
-                        to_return.insert(new_key, JsonType::Null);
+                        to_return.push((new_key, JsonType::Null));
                     } else {
                         // panic!("Expected null found something else")
                     }
@@ -367,7 +367,7 @@ impl Parser {
 
                     // println!("Added key {} as obj", new_key.clone());
 
-                    to_return.insert(new_key, JsonType::Object(result));
+                    to_return.push((new_key, JsonType::Object(result)));
                 }
 
                 _ => {
