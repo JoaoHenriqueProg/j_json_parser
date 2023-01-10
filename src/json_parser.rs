@@ -17,8 +17,60 @@ pub enum JsonType {
 impl JsonType {
     pub fn print(&self) {
         match self {
+            JsonType::Object(obj) => {
+                self.spit(&self, 0);
+            }
+
             _ => {
-                unimplemented!();
+                panic!("It is not possible to print something else than a JsonType::Object")
+            }
+        }
+    }
+
+    fn spit(&self, to_spit: &JsonType, indent: u8) {
+        match to_spit {
+            JsonType::Object(val) => {
+                println!("{}", '{');
+                for element in val.iter() {
+                    for _ in 0..(indent + 1) * 2 {
+                        print!(" ");
+                    }
+
+                    print!("\"{}\": ", element.0);
+                    self.spit(element.1, indent + 1);
+                }
+                    for _ in 0..indent * 2 {
+                        print!(" ");
+                    }
+                println!("{}", '}');
+            }
+
+            JsonType::Bool(val) => {
+                println!("{},", val);
+            }
+            JsonType::Number(val) => {
+                println!("{},", val);
+            }
+            JsonType::String(val) => {
+                println!("\"{}\",", val);
+            }
+            JsonType::Array(val) => {
+                println!("{}", '[');
+                for element in val.iter() {
+                    for _ in 0..(indent + 1) * 2 {
+                        print!(" ");
+                    }
+                    
+                    self.spit(element, indent + 1);
+                }
+                    for _ in 0..indent * 2 {
+                        print!(" ");
+                    }
+                    
+                println!("{},", ']');
+            }
+            JsonType::Null => {
+                println!("null,");
             }
         }
     }
