@@ -1,23 +1,46 @@
-use std::collections::HashMap;
-
 pub struct Parser {
     cur_text: String,
     cur_i: usize,
 }
 
+#[derive(Clone)]
 pub enum JsonType {
     Bool(bool),
-    Number(f32),
+    Number(f64),
     String(String),
     Array(Vec<JsonType>),
     Object(Vec<(String, JsonType)>),
     Null,
 }
 
+pub enum JsonError {
+    KeyNotFound,
+    TriedToAccessChildrenOnANonObjectJsonType,
+}
+
 impl JsonType {
+    pub fn get(&self, key: String) -> Result<JsonType, JsonError> {
+        match self {
+            JsonType::Object(val) => {
+                // yes, it's slow, I'm gonna chage it later
+
+                for child in val {
+                    if child.0 == key {
+                        return Ok(child.1.clone());
+                    }
+                }
+
+                return Err(JsonError::KeyNotFound);
+            }
+            _ => {
+                return Err(JsonError::TriedToAccessChildrenOnANonObjectJsonType);
+            }
+        }
+    }
+
     pub fn print(&self) {
         match self {
-            JsonType::Object(obj) => {
+            JsonType::Object(_) => {
                 self.spit(&self, 0);
             }
 
@@ -39,9 +62,9 @@ impl JsonType {
                     print!("\"{}\": ", element.0);
                     self.spit(&element.1, indent + 1);
                 }
-                    for _ in 0..indent * 2 {
-                        print!(" ");
-                    }
+                for _ in 0..indent * 2 {
+                    print!(" ");
+                }
                 println!("{}", '}');
             }
 
@@ -60,13 +83,13 @@ impl JsonType {
                     for _ in 0..(indent + 1) * 2 {
                         print!(" ");
                     }
-                    
+
                     self.spit(element, indent + 1);
                 }
-                    for _ in 0..indent * 2 {
-                        print!(" ");
-                    }
-                    
+                for _ in 0..indent * 2 {
+                    print!(" ");
+                }
+
                 println!("{},", ']');
             }
             JsonType::Null => {
@@ -172,7 +195,7 @@ impl Parser {
         }
     }
 
-    fn parse_number(&mut self) -> f32 {
+    fn parse_number(&mut self) -> f64 {
         let mut stringed_number = "".to_string();
 
         loop {
