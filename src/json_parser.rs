@@ -4,12 +4,23 @@ pub struct Parser {
 }
 
 #[derive(Clone, Debug)]
+pub struct JsonObject {
+    children: Vec<(String, JsonType)>
+}
+
+impl JsonObject {
+    fn new() -> JsonObject {
+        JsonObject { children: Vec::new() }
+    }
+}
+
+#[derive(Clone, Debug)]
 pub enum JsonType {
     Bool(bool),
     Number(f64),
     String(String),
     Array(Vec<JsonType>),
-    Object(Vec<(String, JsonType)>),
+    Object(JsonObject),
     Null,
 }
 
@@ -26,7 +37,7 @@ impl JsonType {
             JsonType::Object(val) => {
                 // yes, it's slow, I'm gonna chage it later
 
-                for child in val {
+                for child in &val.children {
                     if child.0 == key {
                         return Ok(child.1.clone());
                     }
@@ -45,7 +56,7 @@ impl JsonType {
             JsonType::Object(val) => {
                 // yes, it's slow, I'm gonna chage it later
 
-                for child in val {
+                for child in &val.children {
                     if child.0 == key {
                         match child.1 {
                             JsonType::Bool(val) => {
@@ -71,7 +82,7 @@ impl JsonType {
             JsonType::Object(val) => {
                 // yes, it's slow, I'm gonna chage it later
 
-                for child in val {
+                for child in &val.children {
                     if child.0 == key {
                         match child.1 {
                             JsonType::Number(val) => {
@@ -97,7 +108,7 @@ impl JsonType {
             JsonType::Object(val) => {
                 // yes, it's slow, I'm gonna chage it later
 
-                for child in val {
+                for child in &val.children {
                     if child.0 == key {
                         match &child.1 {
                             JsonType::String(val) => {
@@ -123,7 +134,7 @@ impl JsonType {
             JsonType::Object(val) => {
                 // yes, it's slow, I'm gonna chage it later
 
-                for child in val {
+                for child in &val.children {
                     if child.0 == key {
                         match &child.1 {
                             JsonType::Array(val) => {
@@ -144,12 +155,12 @@ impl JsonType {
         }
     }
 
-    pub fn get_obj(&self, key: String) -> Result<Vec<(String, JsonType)>, JsonError> {
+    pub fn get_obj(&self, key: String) -> Result<JsonObject, JsonError> {
         match self {
             JsonType::Object(val) => {
                 // yes, it's slow, I'm gonna chage it later
 
-                for child in val {
+                for child in &val.children {
                     if child.0 == key {
                         match &child.1 {
                             JsonType::Object(val) => {
@@ -192,7 +203,7 @@ impl JsonType {
         match to_spit {
             JsonType::Object(val) => {
                 to_return.push_str("{\n");
-                for element in val {
+                for element in &val.children {
                     for _ in 0..(indent + 1) * 2 {
                         to_return.push(' ');
                     }
@@ -449,8 +460,8 @@ impl Parser {
         return to_return;
     }
 
-    fn parse_object(&mut self) -> Vec<(String, JsonType)> {
-        let mut to_return: Vec<(String, JsonType)> = Vec::new();
+    fn parse_object(&mut self) -> JsonObject {
+        let mut to_return: JsonObject = JsonObject::new();
 
         self.expect_char('{');
 
@@ -481,7 +492,7 @@ impl Parser {
                     // new_key.clone(),
                     // result.clone().to_string()
                     // );
-                    to_return.push((new_key, JsonType::Bool(result)));
+                    to_return.children.push((new_key, JsonType::Bool(result)));
                 }
 
                 '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '.' => {
@@ -491,7 +502,7 @@ impl Parser {
                     //     new_key.clone(),
                     //     result.clone().to_string()
                     // );
-                    to_return.push((new_key, JsonType::Number(result)));
+                    to_return.children.push((new_key, JsonType::Number(result)));
                 }
 
                 '"' => {
@@ -501,7 +512,7 @@ impl Parser {
                     //     new_key.clone(),
                     //     result.clone().to_string()
                     // );
-                    to_return.push((new_key, JsonType::String(result)));
+                    to_return.children.push((new_key, JsonType::String(result)));
                 }
 
                 '[' => {
@@ -509,7 +520,7 @@ impl Parser {
 
                     // println!("Added key {} with value array", new_key.clone());
 
-                    to_return.push((new_key, JsonType::Array(result)));
+                    to_return.children.push((new_key, JsonType::Array(result)));
                 }
 
                 'n' => {
@@ -521,7 +532,7 @@ impl Parser {
                     if slice == "null" {
                         // println!("Added key {} with value null", new_key.clone(),);
 
-                        to_return.push((new_key, JsonType::Null));
+                        to_return.children.push((new_key, JsonType::Null));
                     } else {
                         // panic!("Expected null found something else")
                     }
@@ -534,7 +545,7 @@ impl Parser {
 
                     // println!("Added key {} as obj", new_key.clone());
 
-                    to_return.push((new_key, JsonType::Object(result)));
+                    to_return.children.push((new_key, JsonType::Object(result)));
                 }
 
                 _ => {
