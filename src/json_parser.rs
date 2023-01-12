@@ -464,7 +464,6 @@ impl Parser {
         loop {
             self.ignore_white_space();
 
-            self.print_cur_char_loc();
             let new_key = self.parse_string();
             if new_key == "" {
                 panic!("Empty key!");
