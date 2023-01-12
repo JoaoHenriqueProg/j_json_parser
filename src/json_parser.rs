@@ -40,20 +40,6 @@ impl JsonObject {
                         to_spit.0,
                         val.priv_stringify(indent + 1)
                     ));
-                    // for element in &val.children {
-                    //     for _ in 0..(indent + 1) * 2 {
-                    //         to_return.push(' ');
-                    //     }
-
-                    //     to_return.push_str(&format!(
-                    //         "\"{}\": {}\n",
-                    //         element.0,
-                    //         val.priv_stringify(indent + 1)
-                    //     ));
-                    // }
-                    // for _ in 0..indent * 2 {
-                    //     to_return.push(' ');
-                    // }
                 }
 
                 JsonType::Bool(val) => {
@@ -255,7 +241,6 @@ impl Parser {
 
     // Only supports one line json, redo or completely remove later
     fn print_cur_char_loc(&self) {
-        // print!("{}", self.cur_text);
         let chars: Vec<char> = self.cur_text.chars().skip(0).take(self.cur_i).collect();
         let slice: String = chars.into_iter().collect();
         println!("{}", slice);
@@ -380,27 +365,21 @@ impl Parser {
             match self.cur_char() {
                 't' | 'f' => {
                     let result = self.parse_bool();
-                    // println!("Added key {} to awway", result.clone().to_string());
                     to_return.push(JsonType::Bool(result));
                 }
 
                 '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '.' => {
                     let result = self.parse_number();
-                    // println!("Added key {} to array", result.clone().to_string());
                     to_return.push(JsonType::Number(result));
                 }
 
                 '"' => {
                     let result = self.parse_string();
-                    // println!("Added key {} to array", result.clone().to_string());
                     to_return.push(JsonType::String(result));
                 }
 
                 '[' => {
                     let result = self.parse_array();
-
-                    // println!("Added array to array");
-
                     to_return.push(JsonType::Array(result));
                 }
 
@@ -411,8 +390,6 @@ impl Parser {
                     self.cur_i += 4;
 
                     if slice == "null" {
-                        // println!("Added null to array");
-
                         to_return.push(JsonType::Null);
                     } else {
                         panic!("Expected null found something else")
@@ -423,7 +400,6 @@ impl Parser {
 
                 '{' => {
                     let result = self.parse_object();
-                    // println!("Added object to array");
                     to_return.push(JsonType::Object(result));
                 }
 
@@ -473,39 +449,21 @@ impl Parser {
             match self.cur_char() {
                 't' | 'f' => {
                     let result = self.parse_bool();
-                    // println!(
-                    // "Added key {} with value {}",
-                    // new_key.clone(),
-                    // result.clone().to_string()
-                    // );
                     to_return.children.push((new_key, JsonType::Bool(result)));
                 }
 
                 '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '.' => {
                     let result = self.parse_number();
-                    // println!(
-                    //     "Added key {} with value {}",
-                    //     new_key.clone(),
-                    //     result.clone().to_string()
-                    // );
                     to_return.children.push((new_key, JsonType::Number(result)));
                 }
 
                 '"' => {
                     let result = self.parse_string();
-                    // println!(
-                    //     "Added key {} with value \"{}\"",
-                    //     new_key.clone(),
-                    //     result.clone().to_string()
-                    // );
                     to_return.children.push((new_key, JsonType::String(result)));
                 }
 
                 '[' => {
                     let result = self.parse_array();
-
-                    // println!("Added key {} with value array", new_key.clone());
-
                     to_return.children.push((new_key, JsonType::Array(result)));
                 }
 
@@ -516,11 +474,9 @@ impl Parser {
                     self.cur_i += 4;
 
                     if slice == "null" {
-                        // println!("Added key {} with value null", new_key.clone(),);
-
                         to_return.children.push((new_key, JsonType::Null));
                     } else {
-                        // panic!("Expected null found something else")
+                        panic!("Expected null found something else");
                     }
                 }
 
@@ -528,9 +484,6 @@ impl Parser {
 
                 '{' => {
                     let result = self.parse_object();
-
-                    // println!("Added key {} as obj", new_key.clone());
-
                     to_return.children.push((new_key, JsonType::Object(result)));
                 }
 
