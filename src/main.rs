@@ -9,8 +9,6 @@ fn main() {
     let test = parser.parse();
 
     test.print();
-    test.print();
-    test.print();
 
     // to proper testing later
     let non_existent_child = test.get("this_key_does_not_exist".to_string());
@@ -24,27 +22,6 @@ fn main() {
                 unreachable!()
             }
         },
-    }
-
-    let not_object_get = test.get("boolean_true".to_string());
-    match not_object_get {
-        Ok(val) => {
-            let this_should_be_an_error = val.get("error".to_string());
-            match this_should_be_an_error {
-                Err(err) => match err {
-                    json_parser::JsonError::TriedToAccessChildrenOnANonObjectJsonType => {}
-                    _ => {
-                        unreachable!()
-                    }
-                },
-                _ => {
-                    unreachable!()
-                }
-            }
-        }
-        Err(_) => {
-            unreachable!()
-        }
     }
 
     println!("=-=");

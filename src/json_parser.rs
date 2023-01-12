@@ -5,12 +5,222 @@ pub struct Parser {
 
 #[derive(Clone, Debug)]
 pub struct JsonObject {
-    children: Vec<(String, JsonType)>
+    children: Vec<(String, JsonType)>,
 }
 
 impl JsonObject {
     fn new() -> JsonObject {
-        JsonObject { children: Vec::new() }
+        JsonObject {
+            children: Vec::new(),
+        }
+    }
+
+    pub fn print(&self) {
+        println!("{}", self.stringify());
+    }
+
+    pub fn stringify(&self) -> String {
+        return self.priv_stringify(0);
+    }
+
+    fn priv_stringify(&self, indent: u8) -> String {
+        let mut to_return: String = "{".to_string();
+
+        for to_spit in &self.children {
+            to_return.push('\n');
+
+            for _ in 0..(indent + 1) * 2 {
+                to_return.push(' ');
+            }
+
+            match &to_spit.1 {
+                JsonType::Object(val) => {
+                    to_return.push_str(&format!(
+                        "\"{}\": {},",
+                        to_spit.0,
+                        val.priv_stringify(indent + 1)
+                    ));
+                    // for element in &val.children {
+                    //     for _ in 0..(indent + 1) * 2 {
+                    //         to_return.push(' ');
+                    //     }
+
+                    //     to_return.push_str(&format!(
+                    //         "\"{}\": {}\n",
+                    //         element.0,
+                    //         val.priv_stringify(indent + 1)
+                    //     ));
+                    // }
+                    // for _ in 0..indent * 2 {
+                    //     to_return.push(' ');
+                    // }
+                }
+
+                JsonType::Bool(val) => {
+                    to_return.push_str(&format!("\"{}\": {},", to_spit.0, val));
+                }
+                JsonType::Number(val) => {
+                    to_return.push_str(&format!("\"{}\": {},", to_spit.0, val));
+                }
+                JsonType::String(val) => {
+                    to_return.push_str(&format!("\"{}\": \"{}\",", to_spit.0, val));
+                }
+                JsonType::Array(val) => {
+                    to_return.push_str(&format!(
+                        "\"{}\": {},",
+                        to_spit.0,
+                        &self.priv_stringify_array(val, indent + 1)
+                    ));
+                }
+                JsonType::Null => {
+                    to_return.push_str(&format!("\"{}\": null,", to_spit.0));
+                }
+            }
+        }
+
+        to_return.push('\n');
+        for _ in 0..indent * 2 {
+            to_return.push(' ');
+        }
+
+        to_return.push_str("}");
+        return to_return;
+    }
+
+    fn priv_stringify_array(&self, array_to_stringify: &Vec<JsonType>, indent: u8) -> String {
+        let mut to_return: String = "[".to_string();
+
+        for to_spit in array_to_stringify {
+            to_return.push('\n');
+
+            for _ in 0..(indent + 1) * 2 {
+                to_return.push(' ');
+            }
+
+            match &to_spit {
+                JsonType::Object(val) => {
+                    to_return.push_str(&format!("{},", val.priv_stringify(indent + 1)));
+                }
+                JsonType::Bool(val) => {
+                    to_return.push_str(&format!("{},", val));
+                }
+                JsonType::Number(val) => {
+                    to_return.push_str(&format!("{},", val));
+                }
+                JsonType::String(val) => {
+                    to_return.push_str(&format!("{},", val));
+                }
+                JsonType::Array(val) => {
+                    to_return.push_str(&format!("{},", &self.priv_stringify_array(val, indent + 1)));
+                }
+                JsonType::Null => {
+                    to_return = "null,".to_string();
+                }
+            }
+        }
+
+        to_return.push('\n');
+        for _ in 0..indent * 2 {
+            to_return.push(' ');
+        }
+
+        to_return.push_str("]");
+        return to_return;
+    }
+
+    pub fn get(&self, key: String) -> Result<JsonType, JsonError> {
+        for child in &self.children {
+            if child.0 == key {
+                return Ok(child.1.clone());
+            }
+        }
+
+        return Err(JsonError::KeyNotFound);
+    }
+
+    pub fn get_bool(&self, key: String) -> Result<bool, JsonError> {
+        for child in &self.children {
+            if child.0 == key {
+                match child.1 {
+                    JsonType::Bool(val) => {
+                        return Ok(val);
+                    }
+                    _ => {
+                        return Err(JsonError::WrongTypeValueRequest);
+                    }
+                }
+            }
+        }
+
+        return Err(JsonError::KeyNotFound);
+    }
+
+    pub fn get_number(&self, key: String) -> Result<f64, JsonError> {
+        for child in &self.children {
+            if child.0 == key {
+                match child.1 {
+                    JsonType::Number(val) => {
+                        return Ok(val);
+                    }
+                    _ => {
+                        return Err(JsonError::WrongTypeValueRequest);
+                    }
+                }
+            }
+        }
+
+        return Err(JsonError::KeyNotFound);
+    }
+
+    pub fn get_string(&self, key: String) -> Result<String, JsonError> {
+        for child in &self.children {
+            if child.0 == key {
+                match &child.1 {
+                    JsonType::String(val) => {
+                        return Ok(val.clone());
+                    }
+                    _ => {
+                        return Err(JsonError::WrongTypeValueRequest);
+                    }
+                }
+            }
+        }
+
+        return Err(JsonError::KeyNotFound);
+    }
+
+    pub fn get_array(&self, key: String) -> Result<Vec<JsonType>, JsonError> {
+        for child in &self.children {
+            if child.0 == key {
+                match &child.1 {
+                    JsonType::Array(val) => {
+                        return Ok(val.clone());
+                    }
+                    _ => {
+                        return Err(JsonError::WrongTypeValueRequest);
+                    }
+                }
+            }
+        }
+
+        return Err(JsonError::KeyNotFound);
+    }
+
+    pub fn get_obj(&self, key: String) -> Result<JsonObject, JsonError> {
+        for child in &self.children {
+            if child.0 == key {
+                match &child.1 {
+                    JsonType::Object(val) => {
+                        return Ok(val.clone());
+                    }
+                    _ => {
+                        return Err(JsonError::WrongTypeValueRequest);
+                    }
+                }
+            }
+        }
+
+        return Err(JsonError::KeyNotFound);
     }
 }
 
@@ -27,231 +237,7 @@ pub enum JsonType {
 #[derive(Debug)]
 pub enum JsonError {
     KeyNotFound,
-    TriedToAccessChildrenOnANonObjectJsonType,
     WrongTypeValueRequest,
-}
-
-impl JsonType {
-    pub fn get(&self, key: String) -> Result<JsonType, JsonError> {
-        match self {
-            JsonType::Object(val) => {
-                // yes, it's slow, I'm gonna chage it later
-
-                for child in &val.children {
-                    if child.0 == key {
-                        return Ok(child.1.clone());
-                    }
-                }
-
-                return Err(JsonError::KeyNotFound);
-            }
-            _ => {
-                return Err(JsonError::TriedToAccessChildrenOnANonObjectJsonType);
-            }
-        }
-    }
-
-    pub fn get_bool(&self, key: String) -> Result<bool, JsonError> {
-        match self {
-            JsonType::Object(val) => {
-                // yes, it's slow, I'm gonna chage it later
-
-                for child in &val.children {
-                    if child.0 == key {
-                        match child.1 {
-                            JsonType::Bool(val) => {
-                                return Ok(val);
-                            }
-                            _ => {
-                                return Err(JsonError::WrongTypeValueRequest);
-                            }
-                        }
-                    }
-                }
-
-                return Err(JsonError::KeyNotFound);
-            }
-            _ => {
-                return Err(JsonError::TriedToAccessChildrenOnANonObjectJsonType);
-            }
-        }
-    }
-
-    pub fn get_number(&self, key: String) -> Result<f64, JsonError> {
-        match self {
-            JsonType::Object(val) => {
-                // yes, it's slow, I'm gonna chage it later
-
-                for child in &val.children {
-                    if child.0 == key {
-                        match child.1 {
-                            JsonType::Number(val) => {
-                                return Ok(val);
-                            }
-                            _ => {
-                                return Err(JsonError::WrongTypeValueRequest);
-                            }
-                        }
-                    }
-                }
-
-                return Err(JsonError::KeyNotFound);
-            }
-            _ => {
-                return Err(JsonError::TriedToAccessChildrenOnANonObjectJsonType);
-            }
-        }
-    }
-    
-    pub fn get_string(&self, key: String) -> Result<String, JsonError> {
-        match self {
-            JsonType::Object(val) => {
-                // yes, it's slow, I'm gonna chage it later
-
-                for child in &val.children {
-                    if child.0 == key {
-                        match &child.1 {
-                            JsonType::String(val) => {
-                                return Ok(val.clone());
-                            }
-                            _ => {
-                                return Err(JsonError::WrongTypeValueRequest);
-                            }
-                        }
-                    }
-                }
-
-                return Err(JsonError::KeyNotFound);
-            }
-            _ => {
-                return Err(JsonError::TriedToAccessChildrenOnANonObjectJsonType);
-            }
-        }
-    }
-    
-    pub fn get_array(&self, key: String) -> Result<Vec<JsonType>, JsonError> {
-        match self {
-            JsonType::Object(val) => {
-                // yes, it's slow, I'm gonna chage it later
-
-                for child in &val.children {
-                    if child.0 == key {
-                        match &child.1 {
-                            JsonType::Array(val) => {
-                                return Ok(val.clone());
-                            }
-                            _ => {
-                                return Err(JsonError::WrongTypeValueRequest);
-                            }
-                        }
-                    }
-                }
-
-                return Err(JsonError::KeyNotFound);
-            }
-            _ => {
-                return Err(JsonError::TriedToAccessChildrenOnANonObjectJsonType);
-            }
-        }
-    }
-
-    pub fn get_obj(&self, key: String) -> Result<JsonObject, JsonError> {
-        match self {
-            JsonType::Object(val) => {
-                // yes, it's slow, I'm gonna chage it later
-
-                for child in &val.children {
-                    if child.0 == key {
-                        match &child.1 {
-                            JsonType::Object(val) => {
-                                return Ok(val.clone());
-                            }
-                            _ => {
-                                return Err(JsonError::WrongTypeValueRequest);
-                            }
-                        }
-                    }
-                }
-
-                return Err(JsonError::KeyNotFound);
-            }
-            _ => {
-                return Err(JsonError::TriedToAccessChildrenOnANonObjectJsonType);
-            }
-        }
-    }
-            
-    pub fn print(&self) {
-        match self {
-            JsonType::Object(_) => {
-                println!("{}", self.stringify());
-            }
-
-            _ => {
-                panic!("It is not possible to print something else than a JsonType::Object")
-            }
-        }
-    }
-
-    pub fn stringify(&self) -> String {
-        return self.priv_stringify(self, 0);
-    }
-
-    fn priv_stringify(&self, to_spit: &JsonType, indent: u8) -> String {
-        let mut to_return: String = "".to_string();
-
-        match to_spit {
-            JsonType::Object(val) => {
-                to_return.push_str("{\n");
-                for element in &val.children {
-                    for _ in 0..(indent + 1) * 2 {
-                        to_return.push(' ');
-                    }
-
-                    to_return.push_str(&format!(
-                        "\"{}\": {}\n",
-                        element.0,
-                        self.priv_stringify(&element.1, indent + 1)
-                    ));
-                }
-                for _ in 0..indent * 2 {
-                    to_return.push(' ');
-                }
-                to_return.push_str("},");
-            }
-
-            JsonType::Bool(val) => {
-                to_return = format!("{},", val);
-            }
-            JsonType::Number(val) => {
-                to_return = format!("{},", val);
-            }
-            JsonType::String(val) => {
-                to_return = format!("\"{}\",", val);
-            }
-            JsonType::Array(val) => {
-                to_return.push_str("[\n");
-                for element in val.iter() {
-                    for _ in 0..(indent + 1) * 2 {
-                        to_return.push(' ');
-                    }
-
-                    to_return.push_str(&self.priv_stringify(element, indent + 1));
-                    to_return.push('\n');
-                }
-                for _ in 0..indent * 2 {
-                    to_return.push(' ');
-                }
-
-                to_return.push_str("],");
-            }
-            JsonType::Null => {
-                to_return = "null,".to_string();
-            }
-        }
-
-        return to_return;
-    }
 }
 
 impl Parser {
@@ -567,11 +553,11 @@ impl Parser {
         return to_return;
     }
 
-    pub fn parse(&mut self) -> JsonType {
+    pub fn parse(&mut self) -> JsonObject {
         if self.cur_i != 0 {
             panic!("Please load a new json file!")
         }
 
-        JsonType::Object(self.parse_object())
+        self.parse_object()
     }
 }
