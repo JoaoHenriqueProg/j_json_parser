@@ -37,11 +37,11 @@ impl JsonType {
             }
         }
     }
-
+    
     pub fn print(&self) {
         match self {
             JsonType::Object(_) => {
-                self.spit(&self, 0);
+                println!("{}", self.stringify());
             }
 
             _ => {
@@ -49,53 +49,61 @@ impl JsonType {
             }
         }
     }
-
-    fn spit(&self, to_spit: &JsonType, indent: u8) {
+    
+    pub fn stringify(&self) -> String {
+        return self.priv_stringify(self, 0)
+    }
+    
+    fn priv_stringify(&self, to_spit: &JsonType, indent: u8) -> String {
+        let mut to_return: String = "".to_string();
+        
         match to_spit {
             JsonType::Object(val) => {
-                println!("{}", '{');
+                to_return.push_str("{\n");
                 for element in val {
                     for _ in 0..(indent + 1) * 2 {
-                        print!(" ");
+                        to_return.push(' ');
                     }
 
-                    print!("\"{}\": ", element.0);
-                    self.spit(&element.1, indent + 1);
+                    to_return.push_str(&format!("\"{}\": {}\n", element.0, self.priv_stringify(&element.1, indent + 1)));
                 }
                 for _ in 0..indent * 2 {
-                    print!(" ");
+                    to_return.push(' ');
                 }
-                println!("{}", '}');
+                to_return.push_str("},");
             }
 
             JsonType::Bool(val) => {
-                println!("{},", val);
+                to_return = format!("{},", val);
             }
             JsonType::Number(val) => {
-                println!("{},", val);
+                to_return = format!("{},", val);
             }
             JsonType::String(val) => {
-                println!("\"{}\",", val);
+                to_return = format!("\"{}\",", val);
             }
             JsonType::Array(val) => {
-                println!("{}", '[');
+                to_return.push_str("[\n");
                 for element in val.iter() {
                     for _ in 0..(indent + 1) * 2 {
-                        print!(" ");
+                        to_return.push(' ');
                     }
 
-                    self.spit(element, indent + 1);
+                    to_return.push_str(&self.priv_stringify(element, indent + 1));
+                to_return.push('\n');
                 }
                 for _ in 0..indent * 2 {
-                    print!(" ");
+                    to_return.push(' ');
                 }
 
-                println!("{},", ']');
+                to_return.push_str("],");
             }
             JsonType::Null => {
-                println!("null,");
+                to_return = "null,".to_string();
             }
         }
+        
+        return to_return;
     }
 }
 
