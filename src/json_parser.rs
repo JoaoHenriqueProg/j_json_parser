@@ -114,9 +114,11 @@ impl JsonObject {
         return to_return;
     }
 
-    pub fn get(&self, key: String) -> Result<JsonType, JsonError> {
+    pub fn get<T: ToString>(&self, key: T) -> Result<JsonType, JsonError> {
+        let key_str = key.to_string();
+        
         for child in &self.children {
-            if child.0 == key {
+            if child.0 == key_str {
                 return Ok(child.1.clone());
             }
         }
@@ -124,9 +126,11 @@ impl JsonObject {
         return Err(JsonError::KeyNotFound);
     }
 
-    pub fn get_bool(&self, key: String) -> Result<bool, JsonError> {
+    pub fn get_bool<T: ToString>(&self, key: T) -> Result<bool, JsonError> {
+        let key_str = key.to_string();
+        
         for child in &self.children {
-            if child.0 == key {
+            if child.0 == key_str {
                 match child.1 {
                     JsonType::Bool(val) => {
                         return Ok(val);
@@ -141,9 +145,11 @@ impl JsonObject {
         return Err(JsonError::KeyNotFound);
     }
 
-    pub fn get_number(&self, key: String) -> Result<f64, JsonError> {
+    pub fn get_number<T: ToString>(&self, key: T) -> Result<f64, JsonError> {
+        let key_str = key.to_string();
+        
         for child in &self.children {
-            if child.0 == key {
+            if child.0 == key_str {
                 match child.1 {
                     JsonType::Number(val) => {
                         return Ok(val);
@@ -158,9 +164,11 @@ impl JsonObject {
         return Err(JsonError::KeyNotFound);
     }
 
-    pub fn get_string(&self, key: String) -> Result<String, JsonError> {
+    pub fn get_string<T: ToString>(&self, key: T) -> Result<String, JsonError> {
+        let key_str = key.to_string();
+        
         for child in &self.children {
-            if child.0 == key {
+            if child.0 == key_str {
                 match &child.1 {
                     JsonType::String(val) => {
                         return Ok(val.clone());
@@ -175,9 +183,11 @@ impl JsonObject {
         return Err(JsonError::KeyNotFound);
     }
 
-    pub fn get_array(&self, key: String) -> Result<Vec<JsonType>, JsonError> {
+    pub fn get_array<T: ToString>(&self, key: T) -> Result<Vec<JsonType>, JsonError> {
+        let key_str = key.to_string();
+        
         for child in &self.children {
-            if child.0 == key {
+            if child.0 == key_str {
                 match &child.1 {
                     JsonType::Array(val) => {
                         return Ok(val.clone());
@@ -192,9 +202,11 @@ impl JsonObject {
         return Err(JsonError::KeyNotFound);
     }
 
-    pub fn get_obj(&self, key: String) -> Result<JsonObject, JsonError> {
+    pub fn get_obj<T: ToString>(&self, key: T) -> Result<JsonObject, JsonError> {
+        let key_str = key.to_string();
+        
         for child in &self.children {
-            if child.0 == key {
+            if child.0 == key_str {
                 match &child.1 {
                     JsonType::Object(val) => {
                         return Ok(val.clone());
@@ -266,8 +278,8 @@ impl Parser {
         }
     }
 
-    pub fn load(&mut self, new_text: String) {
-        self.cur_text = new_text;
+    pub fn load<T: ToString>(&mut self, new_text: T) {
+        self.cur_text = new_text.to_string();
         self.cur_i = 0;
     }
 
