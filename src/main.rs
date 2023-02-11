@@ -4,51 +4,74 @@ mod json_parser;
 
 fn main() {
     let mut parser = json_parser::Parser::new();
-    parser.load(r#"{            "boolean_true":true,"boolean_false" : false ,"array_1":[1,2,3],"integer":123,"float":123.456     ,      "string":"Hello, World!","empty_string":"","whitespace_string":"   ", "null_val"    :  null,"null_val2":null,   "empty_array":[],"array_with_null_values":[null,null,null],"array_with_nested_objects_and_arrays":[[1,2,3],{"a":"apple","b":"banana","c":"cherry"},[{"x":"x-ray","y":"yellow","z":"zebra"},{"foo":"bar"}]],"empty_object":{},"object_with_null_values":{"a":null,"b":null,"c":null},"object_with_nested_objects_and_arrays":{"nested_array":[{"a":1,"b":2,"c":3},{"d":4,"e":5,"f":6}],"nested_object":{"g":7,"h":8,"i":9}},"null_value":null}
-"#);
+    parser.load(r#"
+{
+  "results": [
+    {
+      "gender": "female",
+      "name": {
+        "title": "Miss",
+        "first": "Jennie",
+        "last": "Nichols"
+      },
+      "location": {
+        "street": {
+          "number": 8929,
+          "name": "Valwood Pkwy",
+        },
+        "city": "Billings",
+        "state": "Michigan",
+        "country": "United States",
+        "postcode": "63104",
+        "coordinates": {
+          "latitude": "-69.8246",
+          "longitude": "134.8719"
+        },
+        "timezone": {
+          "offset": "+9:30",
+          "description": "Adelaide, Darwin"
+        }
+      },
+      "email": "jennie.nichols@example.com",
+      "login": {
+        "uuid": "7a0eed16-9430-4d68-901f-c0d4c1c3bf00",
+        "username": "yellowpeacock117",
+        "password": "addison",
+        "salt": "sld1yGtd",
+        "md5": "ab54ac4c0be9480ae8fa5e9e2a5196a3",
+        "sha1": "edcf2ce613cbdea349133c52dc2f3b83168dc51b",
+        "sha256": "48df5229235ada28389b91e60a935e4f9b73eb4bdb855ef9258a1751f10bdc5d"
+      },
+      "dob": {
+        "date": "1992-03-08T15:13:16.688Z",
+        "age": 30
+      },
+      "registered": {
+        "date": "2007-07-09T05:51:59.390Z",
+        "age": 14
+      },
+      "phone": "(272) 790-0888",
+      "cell": "(489) 330-2385",
+      "id": {
+        "name": "SSN",
+        "value": "405-88-3636"
+      },
+      "picture": {
+        "large": "https://randomuser.me/api/portraits/men/75.jpg",
+        "medium": "https://randomuser.me/api/portraits/med/men/75.jpg",
+        "thumbnail": "https://randomuser.me/api/portraits/thumb/men/75.jpg"
+      },
+      "nat": "US"
+    }
+  ],
+  "info": {
+    "seed": "56d27f4a53bd5441",
+    "results": 1,
+    "page": 1,
+    "version": "1.4"
+  }
+}"#);
     let test = parser.parse();
 
     test.print();
-
-    // to proper testing later
-    let non_existent_child = test.get("this_key_does_not_exist");
-    match non_existent_child {
-        Ok(_) => {
-            unreachable!();
-        }
-        Err(err) => match err {
-            JsonError::KeyNotFound => {}
-            _ => {
-                unreachable!()
-            }
-        },
-    }
-
-    println!("=-=");
-    println!("{}", test.stringify());
-    println!("=-=");
-    println!("{}", test.get_bool("boolean_true").unwrap());
-    println!("{}", test.get_number("float").unwrap());
-    println!("{}", test.get_string("string").unwrap());
-
-    match test.get_number("string") {
-        Ok(_) => unreachable!(),
-        Err(err) => match err {
-            JsonError::WrongTypeValueRequest => {}
-            _ => {
-                unreachable!()
-            }
-        },
-    }
-
-    let array1 = test.get_array("array_1");
-
-    match array1 {
-        Ok(val) => {
-            println!("{:#?}", val[0]);
-            println!("{:#?}", val[1]);
-            println!("{:#?}", val[2]);
-        },
-        Err(_) => unreachable!(),
-    }
 }
