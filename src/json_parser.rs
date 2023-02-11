@@ -513,6 +513,13 @@ impl Parser {
 
             self.expect_char(',');
             self.cur_i += 1;
+            
+            self.ignore_white_space();
+            
+            if self.cur_char() == '}' {
+                self.cur_i += 1;
+                break;
+            }
         }
 
         return to_return;
@@ -522,7 +529,8 @@ impl Parser {
         if self.cur_i != 0 {
             panic!("Please load a new json file!")
         }
-
+        
+        self.ignore_white_space();
         self.parse_object()
     }
 }
