@@ -1,3 +1,6 @@
+// V 1
+// https://github.com/JoaoHenriqueProg/j_json_parser
+
 pub struct Parser {
     cur_text: String,
     cur_i: usize,
