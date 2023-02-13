@@ -77,7 +77,7 @@ fn main() {
   }
 }"#);
     
-    parser.load("{}");
+    // parser.load("{}");
     
     let mut test = parser.parse();
     test.set_bool("is_working", true);
@@ -90,6 +90,8 @@ fn main() {
     test.set_array("test_array", vec![JsonType::Bool(true), JsonType::Number(69.)]);
     test.set_array("test_array", vec![JsonType::Bool(false), JsonType::Number(420.)]);
     test.set_null("null_test");
-
+    
     test.print();
+    
+    println!("{}", test.get_string("test_string").unwrap());
 }

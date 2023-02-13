@@ -100,7 +100,8 @@ impl JsonObject {
                     to_return.push_str(&format!("{},", val));
                 }
                 JsonType::Array(val) => {
-                    to_return.push_str(&format!("{},", &self.priv_stringify_array(val, indent + 1)));
+                    to_return
+                        .push_str(&format!("{},", &self.priv_stringify_array(val, indent + 1)));
                 }
                 JsonType::Null => {
                     to_return = "null,".to_string();
@@ -117,128 +118,116 @@ impl JsonObject {
         return to_return;
     }
 
-    pub fn get<T: ToString>(&self, key: T) -> Result<JsonType, JsonError> {
-        let key_str = key.to_string();
-        
-        for child in &self.children {
-            if child.0 == key_str {
-                return Ok(child.1.clone());
-            }
-        }
-
-        return Err(JsonError::KeyNotFound);
-    }
-
-    pub fn get_bool<T: ToString>(&self, key: T) -> Result<bool, JsonError> {
-        let key_str = key.to_string();
-        
-        for child in &self.children {
-            if child.0 == key_str {
-                match child.1 {
-                    JsonType::Bool(val) => {
-                        return Ok(val);
-                    }
-                    _ => {
-                        return Err(JsonError::WrongTypeValueRequest);
-                    }
-                }
-            }
-        }
-
-        return Err(JsonError::KeyNotFound);
-    }
-
-    pub fn get_number<T: ToString>(&self, key: T) -> Result<f64, JsonError> {
-        let key_str = key.to_string();
-        
-        for child in &self.children {
-            if child.0 == key_str {
-                match child.1 {
-                    JsonType::Number(val) => {
-                        return Ok(val);
-                    }
-                    _ => {
-                        return Err(JsonError::WrongTypeValueRequest);
-                    }
-                }
-            }
-        }
-
-        return Err(JsonError::KeyNotFound);
-    }
-
-    pub fn get_string<T: ToString>(&self, key: T) -> Result<String, JsonError> {
-        let key_str = key.to_string();
-        
-        for child in &self.children {
-            if child.0 == key_str {
-                match &child.1 {
-                    JsonType::String(val) => {
-                        return Ok(val.clone());
-                    }
-                    _ => {
-                        return Err(JsonError::WrongTypeValueRequest);
-                    }
-                }
-            }
-        }
-
-        return Err(JsonError::KeyNotFound);
-    }
-
-    pub fn get_array<T: ToString>(&self, key: T) -> Result<Vec<JsonType>, JsonError> {
-        let key_str = key.to_string();
-        
-        for child in &self.children {
-            if child.0 == key_str {
-                match &child.1 {
-                    JsonType::Array(val) => {
-                        return Ok(val.clone());
-                    }
-                    _ => {
-                        return Err(JsonError::WrongTypeValueRequest);
-                    }
-                }
-            }
-        }
-
-        return Err(JsonError::KeyNotFound);
-    }
-
-    pub fn get_obj<T: ToString>(&self, key: T) -> Result<JsonObject, JsonError> {
-        let key_str = key.to_string();
-        
-        for child in &self.children {
-            if child.0 == key_str {
-                match &child.1 {
-                    JsonType::Object(val) => {
-                        return Ok(val.clone());
-                    }
-                    _ => {
-                        return Err(JsonError::WrongTypeValueRequest);
-                    }
-                }
-            }
-        }
-
-        return Err(JsonError::KeyNotFound);
-    }
-    
-    fn get_index_of_key<T: ToString>(&self, key: T) -> i64{
+    fn get_index_of_key<T: ToString>(&self, key: T) -> i64 {
         let mut i = 0;
         for child in self.children.clone() {
             if child.0 == key.to_string() {
-                return i
+                return i;
             }
             i += 1;
         }
         return -1;
     }
-    
+
+    pub fn get<T: ToString>(&self, key: T) -> Result<JsonType, JsonError> {
+        let i = self.get_index_of_key(key.to_string());
+
+        if i == -1 {
+            return Err(JsonError::KeyNotFound);
+        } else {
+            return Ok(self.children[i as usize].1.clone());
+        }
+    }
+
+    pub fn get_bool<T: ToString>(&self, key: T) -> Result<bool, JsonError> {
+        let i = self.get_index_of_key(key.to_string());
+
+        if i == -1 {
+            return Err(JsonError::KeyNotFound);
+        } else {
+            match self.children[i as usize].1 {
+                JsonType::Bool(val) => {
+                    return Ok(val);
+                }
+                _ => {
+                    return Err(JsonError::WrongTypeValueRequest);
+                }
+            }
+        }
+    }
+
+    pub fn get_number<T: ToString>(&self, key: T) -> Result<f64, JsonError> {
+        let i = self.get_index_of_key(key.to_string());
+
+        if i == -1 {
+            return Err(JsonError::KeyNotFound);
+        } else {
+            match self.children[i as usize].1 {
+                JsonType::Number(val) => {
+                    return Ok(val);
+                }
+                _ => {
+                    return Err(JsonError::WrongTypeValueRequest);
+                }
+            }
+        }
+    }
+
+    pub fn get_string<T: ToString>(&self, key: T) -> Result<String, JsonError> {
+        let i = self.get_index_of_key(key.to_string());
+
+        if i == -1 {
+            return Err(JsonError::KeyNotFound);
+        } else {
+            match &self.children[i as usize].1 {
+                JsonType::String(val) => {
+                    return Ok(val.clone());
+                }
+                _ => {
+                    return Err(JsonError::WrongTypeValueRequest);
+                }
+            }
+        }
+    }
+
+    pub fn get_array<T: ToString>(&self, key: T) -> Result<Vec<JsonType>, JsonError> {
+        let i = self.get_index_of_key(key.to_string());
+
+        if i == -1 {
+            return Err(JsonError::KeyNotFound);
+        } else {
+            match &self.children[i as usize].1 {
+                JsonType::Array(val) => {
+                    return Ok(val.clone());
+                }
+                _ => {
+                    return Err(JsonError::WrongTypeValueRequest);
+                }
+            }
+        }
+    }
+
+    pub fn get_obj<T: ToString>(&self, key: T) -> Result<JsonObject, JsonError> {
+        let i = self.get_index_of_key(key.to_string());
+
+        if i == -1 {
+            return Err(JsonError::KeyNotFound);
+        } else {
+            match &self.children[i as usize].1 {
+                JsonType::Object(val) => {
+                    return Ok(val.clone());
+                }
+                _ => {
+                    return Err(JsonError::WrongTypeValueRequest);
+                }
+            }
+        }
+    }
+
     pub fn set_bool<T: ToString>(&mut self, new_key: T, new_value: bool) {
         let to_add = (new_key.to_string(), JsonType::Bool(new_value));
         let i = self.get_index_of_key(new_key);
-        
+
         if i == -1 {
             self.children.push(to_add);
         } else {
@@ -248,7 +237,7 @@ impl JsonObject {
     pub fn set_number<T: ToString>(&mut self, new_key: T, new_value: f64) {
         let to_add = (new_key.to_string(), JsonType::Number(new_value));
         let i = self.get_index_of_key(new_key);
-        
+
         if i == -1 {
             self.children.push(to_add);
         } else {
@@ -258,7 +247,7 @@ impl JsonObject {
     pub fn set_string<T: ToString>(&mut self, new_key: T, new_value: T) {
         let to_add = (new_key.to_string(), JsonType::String(new_value.to_string()));
         let i = self.get_index_of_key(new_key);
-        
+
         if i == -1 {
             self.children.push(to_add);
         } else {
@@ -268,7 +257,7 @@ impl JsonObject {
     pub fn set_array<T: ToString>(&mut self, new_key: T, new_value: Vec<JsonType>) {
         let to_add = (new_key.to_string(), JsonType::Array(new_value));
         let i = self.get_index_of_key(new_key);
-        
+
         if i == -1 {
             self.children.push(to_add);
         } else {
@@ -278,7 +267,7 @@ impl JsonObject {
     pub fn set_null<T: ToString>(&mut self, new_key: T) {
         let to_add = (new_key.to_string(), JsonType::Null);
         let i = self.get_index_of_key(new_key);
-        
+
         if i == -1 {
             self.children.push(to_add);
         } else {
@@ -315,17 +304,12 @@ impl Parser {
         // self.print_cur_char_loc();
         self.cur_text.chars().nth(self.cur_i).unwrap()
     }
-    
+
     fn get_substr(&mut self, len: usize) -> String {
-        let to_return = self
-            .cur_text
-            .chars()
-            .skip(self.cur_i)
-            .take(len)
-            .collect();
-        
+        let to_return = self.cur_text.chars().skip(self.cur_i).take(len).collect();
+
         self.cur_i += len;
-        
+
         return to_return;
     }
 
@@ -500,7 +484,7 @@ impl Parser {
 
         return to_return;
     }
-    
+
     fn parse_object(&mut self) -> JsonObject {
         let mut to_return: JsonObject = JsonObject::new();
 
@@ -577,9 +561,9 @@ impl Parser {
 
             self.expect_char(',');
             self.cur_i += 1;
-            
+
             self.ignore_white_space();
-            
+
             if self.cur_char() == '}' {
                 self.cur_i += 1;
                 break;
@@ -593,7 +577,7 @@ impl Parser {
         if self.cur_i != 0 {
             panic!("Please load a new json file!")
         }
-        
+
         self.ignore_white_space();
         self.parse_object()
     }
