@@ -1,3 +1,5 @@
+use json_parser::JsonType;
+
 use crate::json_parser::JsonError;
 
 mod json_parser;
@@ -74,7 +76,20 @@ fn main() {
     "version": "1.4"
   }
 }"#);
-    let test = parser.parse();
+    
+    parser.load("{}");
+    
+    let mut test = parser.parse();
+    test.set_bool("is_working", true);
+    test.set_bool("are_you_sure", true);
+    test.set_bool("is_working", false);
+    test.set_number("number_test", 69.);
+    test.set_number("number_test", 420.);
+    test.set_string("test_string", "yo");
+    test.set_string("test_string", "bruh");
+    test.set_array("test_array", vec![JsonType::Bool(true), JsonType::Number(69.)]);
+    test.set_array("test_array", vec![JsonType::Bool(false), JsonType::Number(420.)]);
+    test.set_null("null_test");
 
     test.print();
 }

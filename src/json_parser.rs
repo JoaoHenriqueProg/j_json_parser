@@ -1,4 +1,4 @@
-// V 1
+// V 2
 // https://github.com/JoaoHenriqueProg/j_json_parser
 
 pub struct Parser {
@@ -222,6 +222,68 @@ impl JsonObject {
         }
 
         return Err(JsonError::KeyNotFound);
+    }
+    
+    fn get_index_of_key<T: ToString>(&self, key: T) -> i64{
+        let mut i = 0;
+        for child in self.children.clone() {
+            if child.0 == key.to_string() {
+                return i
+            }
+            i += 1;
+        }
+        return -1;
+    }
+    
+    pub fn set_bool<T: ToString>(&mut self, new_key: T, new_value: bool) {
+        let to_add = (new_key.to_string(), JsonType::Bool(new_value));
+        let i = self.get_index_of_key(new_key);
+        
+        if i == -1 {
+            self.children.push(to_add);
+        } else {
+            self.children[i as usize] = to_add;
+        }
+    }
+    pub fn set_number<T: ToString>(&mut self, new_key: T, new_value: f64) {
+        let to_add = (new_key.to_string(), JsonType::Number(new_value));
+        let i = self.get_index_of_key(new_key);
+        
+        if i == -1 {
+            self.children.push(to_add);
+        } else {
+            self.children[i as usize] = to_add;
+        }
+    }
+    pub fn set_string<T: ToString>(&mut self, new_key: T, new_value: T) {
+        let to_add = (new_key.to_string(), JsonType::String(new_value.to_string()));
+        let i = self.get_index_of_key(new_key);
+        
+        if i == -1 {
+            self.children.push(to_add);
+        } else {
+            self.children[i as usize] = to_add;
+        }
+    }
+    pub fn set_array<T: ToString>(&mut self, new_key: T, new_value: Vec<JsonType>) {
+        let to_add = (new_key.to_string(), JsonType::Array(new_value));
+        let i = self.get_index_of_key(new_key);
+        
+        if i == -1 {
+            self.children.push(to_add);
+        } else {
+            self.children[i as usize] = to_add;
+        }
+    }
+    pub fn set_null<T: ToString>(&mut self, new_key: T) {
+        let to_add = (new_key.to_string(), JsonType::Null);
+        let i = self.get_index_of_key(new_key);
+        
+        if i == -1 {
+            self.children.push(to_add);
+        } else {
+            self.children[i as usize] = to_add;
+        }
     }
 }
 
