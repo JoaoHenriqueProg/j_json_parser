@@ -250,6 +250,19 @@ impl Parser {
         // self.print_cur_char_loc();
         self.cur_text.chars().nth(self.cur_i).unwrap()
     }
+    
+    fn get_substr(&mut self, len: usize) -> String {
+        let to_return = self
+            .cur_text
+            .chars()
+            .skip(self.cur_i)
+            .take(len)
+            .collect();
+        
+        self.cur_i += len;
+        
+        return to_return;
+    }
 
     // Only supports one line json, redo or completely remove later
     fn print_cur_char_loc(&self) {
@@ -314,22 +327,14 @@ impl Parser {
             keyword_len = 4;
         }
 
-        let chars: Vec<char> = self
-            .cur_text
-            .chars()
-            .skip(self.cur_i)
-            .take(keyword_len)
-            .collect();
-        let slice: String = chars.into_iter().collect();
+        let chars = self.get_substr(keyword_len);
 
-        self.cur_i += keyword_len;
-
-        if slice == "true" {
+        if chars == "true" {
             return true;
-        } else if slice == "false" {
+        } else if chars == "false" {
             return false;
         } else {
-            panic!("Expected true or false, got: {}", slice);
+            panic!("Expected true or false, got: {}", chars);
         }
     }
 
@@ -396,12 +401,9 @@ impl Parser {
                 }
 
                 'n' => {
-                    let chars: Vec<char> = self.cur_text.chars().skip(self.cur_i).take(4).collect();
-                    let slice: String = chars.into_iter().collect();
+                    let chars = self.get_substr(4);
 
-                    self.cur_i += 4;
-
-                    if slice == "null" {
+                    if chars == "null" {
                         to_return.push(JsonType::Null);
                     } else {
                         panic!("Expected null found something else")
@@ -433,7 +435,7 @@ impl Parser {
 
         return to_return;
     }
-
+    
     fn parse_object(&mut self) -> JsonObject {
         let mut to_return: JsonObject = JsonObject::new();
 
@@ -480,12 +482,9 @@ impl Parser {
                 }
 
                 'n' => {
-                    let chars: Vec<char> = self.cur_text.chars().skip(self.cur_i).take(4).collect();
-                    let slice: String = chars.into_iter().collect();
+                    let chars = self.get_substr(4);
 
-                    self.cur_i += 4;
-
-                    if slice == "null" {
+                    if chars == "null" {
                         to_return.children.push((new_key, JsonType::Null));
                     } else {
                         panic!("Expected null found something else");

@@ -8,6 +8,9 @@ fn main() {
 {
   "results": [
     {
+      "alive": true,
+      "single": false,
+      "children": null,
       "gender": "female",
       "name": {
         "title": "Miss",
