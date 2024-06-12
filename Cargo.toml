@@ -1,11 +1,15 @@
 [package]
-name = "j_json_parser"
+name = "j_json_parser_example"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies]
-
 [lib]
-target = ["dylib"]
+name = "j_json_parser"
+path = "src/lib.rs"
+crate-type = ["rlib", "dylib"]
+
+[[bin]]
+name = "runnie"
+path = "src/main.rs"

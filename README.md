@@ -12,7 +12,5 @@ Step 2: build
 ```
 cargo build
 ```
-Step 3: greate question
-```
-TODO
-```
+
+Your library will be under target/[BUILD MODE]/
