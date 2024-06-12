@@ -253,6 +253,14 @@ impl JsonObject {
         let to_add = (new_key.to_string(), JsonType::Null);
         self.set_entry(to_add);
     }
+    /// .Requires the obj to not exist
+    pub fn insert_obj<T: ToString>(&mut self, new_key: T) {
+        let to_add = (new_key.to_string(), JsonType::Object(JsonObject::new()));
+        if self.get_index_of_key(new_key.to_string()) != -1 {
+            panic!("Cannot insert an object that already exists!")
+        }
+        self.set_entry(to_add);
+    }
 }
 
 #[derive(Debug)]
