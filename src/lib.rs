@@ -35,6 +35,10 @@ impl JsonObject {
     }
 
     fn priv_stringify(&self, indent: u8) -> String {
+        if self.children.len() == 0 {
+            return "{}".to_string()
+        }
+
         let mut to_return: String = "{".to_string();
 
         for to_spit in &self.children {
@@ -75,6 +79,8 @@ impl JsonObject {
             }
         }
 
+        to_return.pop();
+
         to_return.push('\n');
         for _ in 0..indent * 2 {
             to_return.push(' ');
@@ -85,6 +91,10 @@ impl JsonObject {
     }
 
     fn priv_stringify_array(&self, array_to_stringify: &Vec<JsonType>, indent: u8) -> String {
+        if array_to_stringify.len() == 0 {
+            return "[]".to_string()
+        }
+
         let mut to_return: String = "[".to_string();
 
         for to_spit in array_to_stringify {
@@ -116,6 +126,8 @@ impl JsonObject {
                 }
             }
         }
+
+        to_return.pop();
 
         to_return.push('\n');
         for _ in 0..indent * 2 {
@@ -399,7 +411,7 @@ impl Parser {
                     to_return.push(JsonType::Bool(result));
                 }
 
-                // TODO: aparentemente, números em json não podem começar com . 
+                // TODO: aparentemente, números em json não podem começar com .
                 '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '.' => {
                     let result = self.parse_number();
                     to_return.push(JsonType::Number(result));

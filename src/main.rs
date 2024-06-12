@@ -18,7 +18,7 @@ fn main() {
       "location": {
         "street": {
           "number": 8929,
-          "name": "Valwood Pkwy",
+          "name": "Valwood Pkwy"
         },
         "city": "Billings",
         "state": "Michigan",
@@ -91,6 +91,8 @@ fn main() {
     test.set_array("test_array", vec![JsonType::Bool(true), JsonType::Number(69.)]);
     test.set_array("test_array", vec![JsonType::Bool(false), JsonType::Number(420.)]);
     test.set_null("null_test");
+    test.set_array("empty", vec![]);
+    test.insert_obj("empty_obj");
     let a = test.get_number("number_test").unwrap();
     
     println!("{}", a);
