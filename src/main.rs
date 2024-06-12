@@ -86,8 +86,10 @@ fn main() {
     test.set_array("test_array", vec![JsonType::Bool(true), JsonType::Number(69.)]);
     test.set_array("test_array", vec![JsonType::Bool(false), JsonType::Number(420.)]);
     test.set_null("null_test");
+    let a = test.get_number("number_test").unwrap();
     
-    test.print();
+    println!("{}", a);
+    println!("{}", test.to_string());
     
     println!("{}", test.get_string("test_string").unwrap());
 }
