@@ -436,6 +436,11 @@ impl Parser {
             }
 
             self.expect_char(',');
+            self.ignore_white_space();
+
+            if self.cur_char() == ']' {
+                panic!("Trailling commas are not allowed after the last item of an array!")
+            }
         }
         self.cur_i += 1;
 
@@ -519,8 +524,7 @@ impl Parser {
             self.ignore_white_space();
 
             if self.cur_char() == '}' {
-                self.cur_i += 1;
-                break;
+                panic!("Trailling commas are not allowed after the last child of an object!")
             }
         }
 

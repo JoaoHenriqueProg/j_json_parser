@@ -62,6 +62,11 @@ fn main() {
         "medium": "https://randomuser.me/api/portraits/med/men/75.jpg",
         "thumbnail": "https://randomuser.me/api/portraits/thumb/men/75.jpg"
       },
+      "random_list": [
+        "why",
+        420,
+        "hello there"
+      ],
       "nat": "US"
     }
   ],
