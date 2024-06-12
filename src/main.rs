@@ -1,11 +1,7 @@
-use json_parser::JsonType;
-
-use crate::json_parser::JsonError;
-
-mod json_parser;
+use j_json_parser::{JsonType, Parser};
 
 fn main() {
-    let mut parser = json_parser::Parser::new();
+    let mut parser = Parser::new();
     parser.load(r#"
 {
   "results": [

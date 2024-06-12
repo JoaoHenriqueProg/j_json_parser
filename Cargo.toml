@@ -1,5 +1,5 @@
 [package]
-name = "o_de_sempre"
+name = "j_json_parser"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,3 +7,6 @@ edition = "2021"
 
 [dependencies]
 reqwest = "0.11.14"
+
+[lib]
+target = ["dylib"]
