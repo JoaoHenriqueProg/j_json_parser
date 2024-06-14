@@ -36,7 +36,7 @@ impl JsonObject {
 
     fn priv_stringify(&self, indent: u8) -> String {
         if self.children.len() == 0 {
-            return "{}".to_string()
+            return "{}".to_string();
         }
 
         let mut to_return: String = "{".to_string();
@@ -92,7 +92,7 @@ impl JsonObject {
 
     fn priv_stringify_array(&self, array_to_stringify: &Vec<JsonType>, indent: u8) -> String {
         if array_to_stringify.len() == 0 {
-            return "[]".to_string()
+            return "[]".to_string();
         }
 
         let mut to_return: String = "[".to_string();
@@ -314,12 +314,13 @@ impl Parser {
         print!("A\n");
     }
 
-    fn expect_char(&mut self, to_expect: char) {
+    fn expect_char(&mut self, to_expect: char) -> bool {
         if self.cur_char() != to_expect {
-            panic!("Expected: '{}' but got: '{}'!", to_expect, self.cur_char())
+            return false;
         }
 
         self.cur_i += 1;
+        true
     }
 
     fn ignore_white_space(&mut self) {
@@ -377,9 +378,20 @@ impl Parser {
 
         while ![' ', ',', '\n', '\t', ']', '}'].contains(&self.cur_char()) {
             match self.cur_char() {
-                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '.' | '-' => {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '.' | '-' | 'e' => {
+                    let prev = self.cur_text.chars().nth(self.cur_i - 1).unwrap();
                     if self.cur_char() == '-' && stringed_number.len() != 0 {
-                        panic!("Minus sign can only be at the start of a Nzumber!")
+                        if prev != 'e' {
+                            panic!("Minus sign can only be at the start of a Number or after an exponential sign!")
+                        }
+                    }
+                    if self.cur_char() == 'e' && stringed_number.len() == 0 {
+                        panic!("Exponential sign can not be at the start of a Number!")
+                    }
+                    if self.cur_char() == 'e' {
+                        if stringed_number.contains("e") {
+                            panic!("Tried to put two 'e' in a number!")
+                        }
                     }
                     if self.cur_char() == '.' {
                         if stringed_number.contains(".") {
@@ -390,7 +402,10 @@ impl Parser {
                 }
 
                 _ => {
-                    panic!("Something went wrong in number parsing! Found char: {}", self.cur_char())
+                    panic!(
+                        "Something went wrong in number parsing! Found char: {}",
+                        self.cur_char()
+                    )
                 }
             }
 
@@ -415,7 +430,7 @@ impl Parser {
                 }
 
                 // TODO: aparentemente, números em json não podem começar com .
-                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '.' => {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '.' | '-' => {
                     let result = self.parse_number();
                     to_return.push(JsonType::Number(result));
                 }
