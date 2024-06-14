@@ -377,7 +377,10 @@ impl Parser {
 
         while ![' ', ',', '\n', '\t', ']', '}'].contains(&self.cur_char()) {
             match self.cur_char() {
-                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '.' => {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '.' | '-' => {
+                    if self.cur_char() == '-' && stringed_number.len() != 0 {
+                        panic!("Minus sign can only be at the start of a Nzumber!")
+                    }
                     if self.cur_char() == '.' {
                         if stringed_number.contains(".") {
                             panic!("Tried to put two '.' in a number!")
@@ -387,7 +390,7 @@ impl Parser {
                 }
 
                 _ => {
-                    panic!("Something went wrong in number parsing!")
+                    panic!("Something went wrong in number parsing! Found char: {}", self.cur_char())
                 }
             }
 
@@ -495,7 +498,7 @@ impl Parser {
                     to_return.children.push((new_key, JsonType::Bool(result)));
                 }
 
-                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '.' => {
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '.' | '-' => {
                     let result = self.parse_number();
                     to_return.children.push((new_key, JsonType::Number(result)));
                 }
@@ -528,7 +531,7 @@ impl Parser {
                 }
 
                 _ => {
-                    unimplemented!("Strange path")
+                    unimplemented!("Strange path, found char: {}", self.cur_char())
                 }
             }
 
