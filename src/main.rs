@@ -35,6 +35,4 @@ fn main() {
     
     let mut test = parser.parse();
     println!("{}", test.to_string());
-    
-    println!("{}", test.get_string("test_string").unwrap());
 }

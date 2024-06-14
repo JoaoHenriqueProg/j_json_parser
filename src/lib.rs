@@ -1,6 +1,8 @@
 // V 2
 // https://github.com/JoaoHenriqueProg/j_json_parser
 
+use std::fmt::format;
+
 pub struct Parser {
     cur_text: String,
     cur_i: usize,
@@ -34,6 +36,37 @@ impl JsonObject {
         }
     }
 
+    // TODO: refatorar, usa muita String, dava de fazer usando só números
+    fn priv_stringify_number(&self, val: f64) -> String {
+        let mut to_return = val.to_string();
+        if !to_return.contains(".") && val != 0.0 {
+            let mut stringged = val.to_string();
+            let mut zero_count = 0;
+
+            while stringged.pop().unwrap() == '0' {
+                zero_count += 1;
+            }
+
+            if zero_count > 2 {
+                for _ in 0..zero_count {
+                    to_return.pop();
+                }
+
+                if to_return.len() == 1 {
+                    to_return.push_str(format!("e{}", zero_count).as_str());
+                } else {
+                    let int_part = to_return.chars().nth(0).unwrap();
+                    let mut dec_part = to_return;
+                    dec_part.remove(0);
+                    to_return =
+                        format!("{}.{}e{}", int_part, dec_part, zero_count + dec_part.len());
+                }
+            }
+        }
+
+        return to_return;
+    }
+
     fn priv_stringify(&self, indent: u8) -> String {
         if self.children.len() == 0 {
             return "{}".to_string();
@@ -61,7 +94,11 @@ impl JsonObject {
                     to_return.push_str(&format!("\"{}\": {},", to_spit.0, val));
                 }
                 JsonType::Number(val) => {
-                    to_return.push_str(&format!("\"{}\": {},", to_spit.0, val));
+                    to_return.push_str(&format!(
+                        "\"{}\": {},",
+                        to_spit.0,
+                        self.priv_stringify_number(*val)
+                    ));
                 }
                 JsonType::String(val) => {
                     to_return.push_str(&format!("\"{}\": \"{}\",", to_spit.0, val));
