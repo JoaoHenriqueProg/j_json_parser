@@ -16,8 +16,9 @@ fn main() {
     "negative_float": -123.45
   },
   "exponents": {
-    "positive_exponent": 1.23e4,
-    "negative_exponent": 1.23e-4,
+    "positive_exponent": 1.23e6,
+    "negative_positive_exponent": -1.23e6,
+    "negative_exponent": 1.23e-6,
     "positive_large_exponent": 1e30,
     "negative_large_exponent": 1e-30
   },
