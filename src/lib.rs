@@ -38,42 +38,16 @@ impl JsonObject {
 
     // TODO: refatorar, usa muita String, dava de fazer usando só números
     fn priv_stringify_number(&self, val: f64) -> String {
-        let mut to_return = val.to_string();
-        let is_negative = to_return.chars().nth(0).unwrap() == '-';
-        if is_negative {
-            to_return.remove(0);
+        let stringed = val.to_string();
+
+        if stringed.ends_with("000") {
+            return format!("{:e}", val);
+        }
+        if stringed.starts_with("0.000") {
+            return format!("{:e}", val);
         }
 
-        if !to_return.contains(".") && val != 0.0 {
-            let mut stringged = val.to_string();
-            let mut zero_count = 0;
-
-            while stringged.pop().unwrap() == '0' {
-                zero_count += 1;
-            }
-
-            if zero_count > 2 {
-                for _ in 0..zero_count {
-                    to_return.pop();
-                }
-
-                if to_return.len() == 1 {
-                    to_return.push_str(format!("e{}", zero_count).as_str());
-                } else {
-                    let int_part = to_return.chars().nth(0).unwrap();
-                    let mut dec_part = to_return;
-                    dec_part.remove(0);
-                    let sign = match is_negative {
-                        true => "-",
-                        false => ""
-                    };
-                    to_return =
-                        format!("{}{}.{}e{}", sign, int_part, dec_part, zero_count + dec_part.len());
-                }
-            }
-        }
-
-        return to_return;
+        return stringed;
     }
 
     fn priv_stringify(&self, indent: u8) -> String {
