@@ -18,6 +18,7 @@ fn main() {
   "exponents": {
     "positive_exponent": 1.23e6,
     "negative_positive_exponent": -1.23e6,
+    "negative_positive_exponent_without": -0.00000123,
     "negative_exponent": 1.23e-6,
     "positive_large_exponent": 1e30,
     "negative_large_exponent": 1e-30

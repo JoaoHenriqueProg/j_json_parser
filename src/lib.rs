@@ -43,7 +43,7 @@ impl JsonObject {
         if stringed.ends_with("000") {
             return format!("{:e}", val);
         }
-        if stringed.starts_with("0.000") {
+        if stringed.starts_with("0.000") || stringed.starts_with("-0.000") {
             return format!("{:e}", val);
         }
 
